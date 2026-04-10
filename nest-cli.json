@@ -19,6 +19,15 @@
         "tsConfigPath": "apps/backend/tsconfig.app.json"
       }
     },
+    "common": {
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
+      }
+    },
     "ticker-service": {
       "type": "application",
       "root": "apps/ticker-service",
