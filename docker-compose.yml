@@ -1,0 +1,37 @@
+services:
+  ticker-service:
+    build: .
+    container_name: crypto-ticker-service
+    restart: unless-stopped
+#    env_file:
+#      - .env
+    ports:
+      - '4445:4445'
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    command:
+      ['pnpm', 'run', 'start:dev:ticker']
+    environment:
+      TICKER_LISTEN_HOST: '0.0.0.0'
+      TICKER_LISTEN_PORT: '4445'
+
+  backend:
+    build: .
+    container_name: crypto-backend
+    restart: unless-stopped
+    depends_on:
+      - ticker-service
+#    env_file:
+#      - .env
+    ports:
+      - '4444:4444'
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    command:
+      ['pnpm', 'run', 'start:dev']
+    environment:
+      PORT: '4444'
+      TICKER_SERVICE_HOST: ticker-service
+      TICKER_SERVICE_PORT: '4445'
