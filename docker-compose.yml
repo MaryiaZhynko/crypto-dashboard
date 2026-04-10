@@ -3,8 +3,6 @@ services:
     build: .
     container_name: crypto-ticker-service
     restart: unless-stopped
-#    env_file:
-#      - .env
     ports:
       - '4445:4445'
     working_dir: /usr/src/app
@@ -22,8 +20,6 @@ services:
     restart: unless-stopped
     depends_on:
       - ticker-service
-#    env_file:
-#      - .env
     ports:
       - '4444:4444'
     working_dir: /usr/src/app
@@ -35,3 +31,25 @@ services:
       PORT: '4444'
       TICKER_SERVICE_HOST: ticker-service
       TICKER_SERVICE_PORT: '4445'
+
+  web:
+    build: .
+    container_name: crypto-web
+    restart: unless-stopped
+    ports:
+      - '5173:5173'
+    working_dir: /usr/src/app
+    environment:
+      CI: 'true'
+    volumes:
+      - .:/usr/src/app
+      - web_node_modules:/usr/src/app/node_modules
+    command:
+      [
+        'sh',
+        '-c',
+        'pnpm install --frozen-lockfile && pnpm run dev:web',
+      ]
+
+volumes:
+  web_node_modules:

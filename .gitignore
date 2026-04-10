@@ -1,7 +1,10 @@
 # compiled output
 /dist
+./apps/web/dist
 /node_modules
 /build
+
+.pnpm-store
 
 # Logs
 logs

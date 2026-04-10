@@ -14,20 +14,13 @@ $ pnpm install
 
 ## Compile and run the project
 
-docker compose up --build
-
 ```bash
-# development
-$ pnpm run start
+# start
+$ docker compose up --build
 
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
-```
-
+# stop
 docker compose down
+```
 
 ## Run tests
 

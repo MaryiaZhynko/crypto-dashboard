@@ -7,6 +7,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build backend && nest build ticker-service",
+    "dev:web": "pnpm --filter web dev",
+    "dev:all": "concurrently -n ticker,api,web -c cyan,magenta,green \"pnpm run start:dev:ticker\" \"pnpm run start:dev\" \"pnpm run dev:web\"",
+    "build:web": "pnpm --filter web build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start backend --watch",
@@ -30,6 +33,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
+    "concurrently": "^9.2.1",
     "@eslint/js": "^9.18.0",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
@@ -72,5 +76,10 @@
     "roots": [
       "<rootDir>/apps/"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": "^8.0.0"
+    }
   }
 }
