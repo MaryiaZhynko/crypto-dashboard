@@ -11,11 +11,11 @@ interface DashboardProps {
 export function Dashboard({ tickers, totalPages }: DashboardProps) {
   return (
     <section>
-      <Card>
+      <Card className="min-w-0 overflow-visible">
         <CardHeader>
           <CardTitle>Top 100 Cryptocurrencies</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="min-w-0 space-y-4">
           <Table tickers={tickers} />
           <TablePagination totalPages={totalPages} />
         </CardContent>

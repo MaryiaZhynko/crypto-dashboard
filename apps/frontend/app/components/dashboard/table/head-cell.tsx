@@ -1,18 +1,25 @@
 import { cn } from '~/lib/utils';
 import { TextAlign } from '~/types';
+import type { ReactNode } from 'react';
 
 interface IProps {
-  children: React.ReactNode;
+  children: ReactNode;
   textAlign?: TextAlign;
+  className?: string;
 }
 
-export function HeadCell({ children, textAlign = TextAlign.LEFT }: IProps) {
+export function HeadCell({
+  children,
+  textAlign = TextAlign.LEFT,
+  className,
+}: IProps) {
   return (
     <th
       className={cn(
-        'py-3 px-2 text-left',
+        'px-2 py-3 text-left',
         textAlign === TextAlign.CENTER && 'text-center',
         textAlign === TextAlign.RIGHT && 'text-right',
+        className,
       )}
     >
       {children}
