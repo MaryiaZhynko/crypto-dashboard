@@ -16,15 +16,19 @@ describe('TickerServiceController', () => {
     );
   });
 
-  describe('root', () => {
-    it('should return [BTC, ETH, XRP, DOGE, SOL]', () => {
-      expect(tickerServiceController.getAvailableTickers()).toBe([
-        'BTC',
-        'ETH',
-        'XRP',
-        'DOGE',
-        'SOL',
-      ]);
+  describe('getAvailableTickers', () => {
+    it('should return 100 tickers with metadata and daily history', () => {
+      const tickers = tickerServiceController.getAvailableTickers();
+
+      expect(tickers).toHaveLength(100);
+
+      expect(tickers[0].symbol).toBe('BTC');
+      expect(tickers[0].name).toBe('Bitcoin');
+      expect(tickers[0].logo).toMatch(/^https:\/\//);
+      expect(tickers[0].marketCap).toBeGreaterThan(0);
+      expect(tickers[0].volume).toBeGreaterThanOrEqual(0);
+      expect(tickers[0].supply).toBeGreaterThan(0);
+      expect(tickers[0].history).toHaveLength(90);
     });
   });
 });

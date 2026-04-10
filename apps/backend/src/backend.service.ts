@@ -5,6 +5,7 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import type { ITickerAsset } from '@shared/common/types/ticker';
 
 @Injectable()
 export class BackendService implements OnModuleDestroy {
@@ -20,9 +21,12 @@ export class BackendService implements OnModuleDestroy {
     });
   }
 
-  async getAvailableTickers(): Promise<string[]> {
+  async getAvailableTickers(): Promise<ITickerAsset[]> {
     return firstValueFrom(
-      this.tickerService.send<string[]>({ cmd: 'getAvailableTickers' }, {}),
+      this.tickerService.send<ITickerAsset[]>(
+        { cmd: 'getAvailableTickers' },
+        {},
+      ),
     );
   }
 
