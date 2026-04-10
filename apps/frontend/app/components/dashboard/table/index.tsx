@@ -3,6 +3,8 @@ import { Cell } from './cell';
 import { HeadCell } from './head-cell';
 import type { Ticker } from '~/schemas/tickers';
 import { NavLink } from 'react-router';
+import { PriceSparkline } from './price-history-graph';
+import { formatCompactNumber, formatCurrency } from '~/lib/utils';
 
 const HEAD_CELL_PROPS = [
   {
@@ -11,19 +13,15 @@ const HEAD_CELL_PROPS = [
   },
   {
     name: 'Price',
-    textAlign: TextAlign.LEFT,
   },
   {
     name: 'Market Cap',
-    textAlign: TextAlign.LEFT,
   },
   {
     name: 'Volume',
-    textAlign: TextAlign.LEFT,
   },
   {
     name: 'Supply',
-    textAlign: TextAlign.LEFT,
   },
   {
     name: 'History',
@@ -38,7 +36,7 @@ interface IProps {
 export function Table({ tickers }: IProps) {
   return (
     <table className="w-full border-collapse border-border">
-      <thead className="border-b border-border">
+      <thead className="border-b-2 border-border">
         <tr>
           {HEAD_CELL_PROPS.map((props) => (
             <HeadCell key={props.name} textAlign={props.textAlign}>
@@ -68,11 +66,15 @@ export function Table({ tickers }: IProps) {
                 </NavLink>
               </div>
             </Cell>
-            <Cell>{ticker.price}</Cell>
-            <Cell>{ticker.marketCap}</Cell>
-            <Cell>{ticker.volume}</Cell>
-            <Cell>{ticker.supply}</Cell>
-            <Cell>{ticker.history.length}</Cell>
+            <Cell>{formatCurrency(ticker.price)}</Cell>
+            <Cell>{formatCurrency(ticker.marketCap)}</Cell>
+            <Cell>{formatCurrency(ticker.volume)}</Cell>
+            <Cell>{formatCompactNumber(ticker.supply)}</Cell>
+            <Cell>
+              <div className="flex justify-end">
+                <PriceSparkline history={ticker.history} />
+              </div>
+            </Cell>
           </tr>
         ))}
       </tbody>

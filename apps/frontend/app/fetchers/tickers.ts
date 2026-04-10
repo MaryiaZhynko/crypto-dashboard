@@ -1,8 +1,27 @@
-import { TickersApiResponse, TickerApiResponse } from '~/schemas/tickers';
+import {
+  TickersApiResponse,
+  TickerApiResponse,
+  type TickersApiPayload,
+} from '~/schemas/tickers';
 
-export const fetchTickers = async () => {
+const emptyTickersResponse = (): TickersApiPayload => ({
+  items: [],
+  totalPages: 1,
+});
+
+export const fetchTickers = async (params?: {
+  limit?: number;
+  offset?: number;
+}) => {
   try {
-    const url = `${process.env.TICKER_API_URL}/tickers`;
+    const search = new URLSearchParams();
+
+    if (params?.limit != null) search.set('limit', String(params.limit));
+    if (params?.offset != null) search.set('offset', String(params.offset));
+
+    const qs = search.toString();
+
+    const url = `${process.env.TICKER_API_URL}/tickers${qs ? `?${qs}` : ''}`;
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -17,7 +36,7 @@ export const fetchTickers = async () => {
     console.error('Error fetching tickers:', error);
   }
 
-  return [];
+  return emptyTickersResponse();
 };
 
 export const fetchTicker = async (symbol: string) => {

@@ -1,6 +1,6 @@
 import type { IPricePoint } from '@shared/common/types/ticker';
 
-const DEFAULT_DAYS = 7;
+const DEFAULT_DAYS = 50;
 
 function generateRandomPrice(seed: string): () => number {
   let h = 2166136261 >>> 0;

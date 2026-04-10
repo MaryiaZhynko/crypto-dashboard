@@ -20,7 +20,10 @@ export const Ticker = Object({
 
 export type Ticker = Static<typeof Ticker>;
 
-export const TickersApiResponse = Array(Ticker);
+export const TickersApiResponse = Object({
+  items: Array(Ticker),
+  totalPages: Number,
+});
 
 export type TickersApiPayload = Static<typeof TickersApiResponse>;
 

@@ -1,12 +1,30 @@
 import { Dashboard } from '~/components/dashboard';
 import { fetchTickers } from '~/fetchers/tickers';
-import type { Ticker } from '~/schemas/tickers';
 import type { Route } from './+types/home';
 
-export async function loader() {
-  const tickers: Ticker[] = await fetchTickers();
+const PAGE_SIZE = 12;
 
-  return { tickers };
+export async function loader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url);
+  const rawPage = Number.parseInt(url.searchParams.get('page') ?? '1', 10);
+
+  const page = Number.isFinite(rawPage) && rawPage >= 1 ? rawPage : 1;
+
+  let { items: tickers, totalPages } = await fetchTickers({
+    limit: PAGE_SIZE,
+    offset: (page - 1) * PAGE_SIZE,
+  });
+
+  if (totalPages >= 1 && page > totalPages) {
+    const adjusted = await fetchTickers({
+      limit: PAGE_SIZE,
+      offset: (totalPages - 1) * PAGE_SIZE,
+    });
+    tickers = adjusted.items;
+    totalPages = adjusted.totalPages;
+  }
+
+  return { tickers, totalPages };
 }
 
 export function meta(_args: Route.MetaArgs) {
@@ -17,5 +35,10 @@ export function meta(_args: Route.MetaArgs) {
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  return <Dashboard tickers={loaderData.tickers} />;
+  return (
+    <Dashboard
+      tickers={loaderData.tickers}
+      totalPages={loaderData.totalPages}
+    />
+  );
 }
