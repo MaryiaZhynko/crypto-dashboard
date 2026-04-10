@@ -32,9 +32,9 @@ services:
       TICKER_SERVICE_HOST: ticker-service
       TICKER_SERVICE_PORT: '4445'
 
-  web:
+  frontend:
     build: .
-    container_name: crypto-web
+    container_name: crypto-frontend
     restart: unless-stopped
     ports:
       - '5173:5173'
@@ -43,13 +43,13 @@ services:
       CI: 'true'
     volumes:
       - .:/usr/src/app
-      - web_node_modules:/usr/src/app/node_modules
+      - frontend_node_modules:/usr/src/app/node_modules
     command:
       [
         'sh',
         '-c',
-        'pnpm install --frozen-lockfile && pnpm run dev:web',
+        'pnpm install --frozen-lockfile && pnpm run dev:frontend',
       ]
 
 volumes:
-  web_node_modules:
+  frontend_node_modules:

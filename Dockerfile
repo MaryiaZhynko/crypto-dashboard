@@ -5,7 +5,7 @@ RUN corepack enable
 WORKDIR /usr/src/app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/web/package.json ./apps/web/
+COPY apps/frontend/package.json ./apps/frontend/
 
 RUN corepack prepare pnpm@latest --activate && pnpm install --frozen-lockfile
 
