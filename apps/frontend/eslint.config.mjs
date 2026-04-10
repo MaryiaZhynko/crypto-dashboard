@@ -38,6 +38,12 @@ export default tseslint.config(
       },
     },
     rules: {
+      '@typescript-eslint/only-throw-error': [
+        'error',
+        {
+          allow: ['Response'],
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
