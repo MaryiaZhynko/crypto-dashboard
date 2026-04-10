@@ -2,8 +2,8 @@
 /dist
 ./apps/frontend/build
 /node_modules
-./apps/frontend/node_modules
-./apps/frontend/.react-router
+apps/frontend/node_modules
+apps/frontend/.react-router
 /build
 
 .pnpm-store

@@ -36,11 +36,15 @@ services:
     build: .
     container_name: crypto-frontend
     restart: unless-stopped
+    depends_on:
+      - backend
     ports:
       - '5173:5173'
     working_dir: /usr/src/app
     environment:
       CI: 'true'
+      # In-container SSR/loaders must use the Compose service name, not localhost.
+      TICKER_API_URL: 'http://crypto-backend:4444'
     volumes:
       - .:/usr/src/app
       - frontend_node_modules:/usr/src/app/node_modules

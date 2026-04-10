@@ -33,4 +33,10 @@ export class BackendService implements OnModuleDestroy {
   async onModuleDestroy(): Promise<void> {
     await this.tickerService.close();
   }
+
+  async getTicker(symbol: string): Promise<ITickerAsset> {
+    return firstValueFrom(
+      this.tickerService.send<ITickerAsset>({ cmd: 'getTicker' }, { symbol }),
+    );
+  }
 }
