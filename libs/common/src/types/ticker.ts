@@ -13,3 +13,8 @@ export interface ITickerAsset {
   price: number;
   history: IPricePoint[];
 }
+
+export interface ITickersListResponse {
+  items: ITickerAsset[];
+  totalPages: number;
+}

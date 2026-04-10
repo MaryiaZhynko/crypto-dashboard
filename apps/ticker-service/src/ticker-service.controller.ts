@@ -1,15 +1,22 @@
 import { Controller } from '@nestjs/common';
 import { TickerServiceService } from './ticker-service.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import type { ITickerAsset } from '@shared/common/types/ticker';
+import type {
+  ITickerAsset,
+  ITickersListResponse,
+} from '@shared/common/types/ticker';
 
 @Controller()
 export class TickerServiceController {
   constructor(private readonly tickerServiceService: TickerServiceService) {}
 
   @MessagePattern({ cmd: 'getAvailableTickers' })
-  getAvailableTickers(): ITickerAsset[] {
-    return this.tickerServiceService.getAvailableTickers();
+  getAvailableTickers(
+    @Payload() payload: { limit?: number; offset?: number } = {},
+  ): ITickersListResponse {
+    const limit = payload.limit ?? 12;
+    const offset = payload.offset ?? 0;
+    return this.tickerServiceService.getAvailableTickers(limit, offset);
   }
 
   @MessagePattern({ cmd: 'getTicker' })

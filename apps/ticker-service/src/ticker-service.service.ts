@@ -1,11 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import coins from './data/coingecko-top100-snapshot.json';
 import { buildPriceHistory } from './price-history';
-import type { ITickerAsset } from '@shared/common/types/ticker';
+import type {
+  ITickerAsset,
+  ITickersListResponse,
+} from '@shared/common/types/ticker';
 
 @Injectable()
 export class TickerServiceService {
-  getAvailableTickers(): ITickerAsset[] {
+  private getAllTickers(): ITickerAsset[] {
     return coins.map((coin) => {
       const symbol = coin.symbol;
       const price = coin.current_price;
@@ -23,8 +26,19 @@ export class TickerServiceService {
     });
   }
 
+  getAvailableTickers(limit: number, offset: number): ITickersListResponse {
+    const all = this.getAllTickers();
+    const total = all.length;
+    const pageSize = limit > 0 ? limit : 12;
+
+    return {
+      items: all.slice(offset, offset + pageSize),
+      totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    };
+  }
+
   getTicker(symbol: string): ITickerAsset {
-    const ticker = this.getAvailableTickers().find(
+    const ticker = this.getAllTickers().find(
       (ticker) => ticker.symbol.toLowerCase() === symbol.toLowerCase(),
     );
 

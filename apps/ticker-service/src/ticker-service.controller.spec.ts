@@ -18,17 +18,32 @@ describe('TickerServiceController', () => {
 
   describe('getAvailableTickers', () => {
     it('should return 100 tickers with metadata and daily history', () => {
-      const tickers = tickerServiceController.getAvailableTickers();
+      const { items, totalPages } = tickerServiceController.getAvailableTickers(
+        {
+          limit: 100,
+          offset: 0,
+        },
+      );
 
-      expect(tickers).toHaveLength(100);
+      expect(items).toHaveLength(100);
+      expect(totalPages).toBe(1);
 
-      expect(tickers[0].symbol).toBe('BTC');
-      expect(tickers[0].name).toBe('Bitcoin');
-      expect(tickers[0].logo).toMatch(/^https:\/\//);
-      expect(tickers[0].marketCap).toBeGreaterThan(0);
-      expect(tickers[0].volume).toBeGreaterThanOrEqual(0);
-      expect(tickers[0].supply).toBeGreaterThan(0);
-      expect(tickers[0].history).toHaveLength(90);
+      expect(items[0].symbol).toBe('btc');
+      expect(items[0].name).toBe('Bitcoin');
+      expect(items[0].logo).toMatch(/^https:\/\//);
+      expect(items[0].marketCap).toBeGreaterThan(0);
+      expect(items[0].volume).toBeGreaterThanOrEqual(0);
+      expect(items[0].supply).toBeGreaterThan(0);
+      expect(items[0].history).toHaveLength(7);
+    });
+
+    it('defaults to limit 12 and offset 0', () => {
+      const { items, totalPages } = tickerServiceController.getAvailableTickers(
+        {},
+      );
+
+      expect(items).toHaveLength(12);
+      expect(totalPages).toBe(9);
     });
   });
 });

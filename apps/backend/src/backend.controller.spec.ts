@@ -19,15 +19,19 @@ const mockedTicker: ITickerAsset = {
 
 describe('BackendController', () => {
   let backendController: BackendController;
+  const mockGetAvailableTickers = jest
+    .fn()
+    .mockResolvedValue({ items: [mockedTicker], totalPages: 1 });
 
   beforeEach(async () => {
+    mockGetAvailableTickers.mockClear();
     const app: TestingModule = await Test.createTestingModule({
       controllers: [BackendController],
       providers: [
         {
           provide: BackendService,
           useValue: {
-            getAvailableTickers: () => [mockedTicker],
+            getAvailableTickers: mockGetAvailableTickers,
           },
         },
       ],
@@ -36,11 +40,13 @@ describe('BackendController', () => {
     backendController = app.get<BackendController>(BackendController);
   });
 
-  it('getAvailableTickers delegates to BackendService', async () => {
-    const result = await backendController.getAvailableTickers();
+  it('getAvailableTickers delegates to BackendService with limit and offset', async () => {
+    const result = await backendController.getAvailableTickers(12, 0);
 
-    expect(result).toHaveLength(1);
-    expect(result[0].symbol).toBe('BTC');
-    expect(result[0].history[1].price).toBe(72_000);
+    expect(mockGetAvailableTickers).toHaveBeenCalledWith(12, 0);
+    expect(result.items).toHaveLength(1);
+    expect(result.totalPages).toBe(1);
+    expect(result.items[0].symbol).toBe('BTC');
+    expect(result.items[0].history[1].price).toBe(72_000);
   });
 });
