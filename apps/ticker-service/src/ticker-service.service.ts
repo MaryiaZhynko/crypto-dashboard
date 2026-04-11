@@ -3,6 +3,8 @@ import coins from './data/coingecko-top100-snapshot.json';
 import {
   buildFiveSecondPriceHistory,
   buildPriceHistory,
+  createLiveFiveSecondSeries,
+  type LiveFiveSecondSeries,
 } from './price-history';
 import type {
   ITickerAsset,
@@ -12,6 +14,8 @@ import type {
 
 @Injectable()
 export class TickerServiceService {
+  private readonly liveSeriesBySymbol = new Map<string, LiveFiveSecondSeries>();
+
   private getAllTickers(): ITickerAsset[] {
     return coins.map((coin) => {
       const symbol = coin.symbol;
@@ -73,5 +77,43 @@ export class TickerServiceService {
       `${ticker.symbol}-${ticker.name}`,
       ticker.price,
     );
+  }
+
+  private getOrCreateLiveSeries(ticker: ITickerAsset): LiveFiveSecondSeries {
+    const key = ticker.symbol.toLowerCase();
+
+    let series = this.liveSeriesBySymbol.get(key);
+
+    if (!series) {
+      series = createLiveFiveSecondSeries(
+        `${ticker.symbol}-${ticker.name}`,
+        ticker.price,
+      );
+      this.liveSeriesBySymbol.set(key, series);
+    }
+
+    return series;
+  }
+
+  peekLiveTickerForStream(symbol: string): ITickerAsset {
+    const ticker = this.getTicker(symbol);
+    const series = this.getOrCreateLiveSeries(ticker);
+
+    const history = series.getPoints();
+    const last = history[history.length - 1];
+
+    return { ...ticker, price: last.price, history };
+  }
+
+  nextLiveTickerForStream(symbol: string): ITickerAsset {
+    const ticker = this.getTicker(symbol);
+
+    const series = this.getOrCreateLiveSeries(ticker);
+    series.advance();
+
+    const history = series.getPoints();
+    const last = history[history.length - 1];
+
+    return { ...ticker, price: last.price, history };
   }
 }

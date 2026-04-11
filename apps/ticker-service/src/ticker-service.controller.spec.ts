@@ -34,7 +34,7 @@ describe('TickerServiceController', () => {
       expect(items[0].marketCap).toBeGreaterThan(0);
       expect(items[0].volume).toBeGreaterThanOrEqual(0);
       expect(items[0].supply).toBeGreaterThan(0);
-      expect(items[0].history).toHaveLength(7);
+      expect(items[0].history).toHaveLength(50);
     });
 
     it('defaults to limit 12 and offset 0', () => {

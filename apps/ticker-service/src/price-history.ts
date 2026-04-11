@@ -51,28 +51,62 @@ export function buildPriceHistory(
   }));
 }
 
-const FIVE_SECOND_POINT_COUNT = 50;
-const FIVE_SECOND_STEP_MS = 5000;
-const FIVE_SECOND_VOLATILITY = 0.12;
+const LIVE_CHART_POINT_COUNT = 50;
+const LIVE_CHART_STEP_MS = 1000;
+const LIVE_CHART_VOLATILITY = 0.12;
+
+export type LiveFiveSecondSeries = {
+  getPoints(): IPricePoint[];
+  advance(): IPricePoint;
+};
+
+export function createLiveFiveSecondSeries(
+  key: string,
+  anchorPrice: number,
+): LiveFiveSecondSeries {
+  const randomPrice = generateRandomPrice(`${key}-5s`);
+  const unscaled: number[] = [1];
+
+  for (let i = 1; i < LIVE_CHART_POINT_COUNT; i++) {
+    unscaled.push(
+      unscaled[i - 1] * (1 + (randomPrice() - 0.48) * LIVE_CHART_VOLATILITY),
+    );
+  }
+
+  const scale = anchorPrice / unscaled[unscaled.length - 1];
+  const now = Date.now();
+
+  let points: IPricePoint[] = unscaled.map((price, i) => ({
+    timestamp: now - (LIVE_CHART_POINT_COUNT - 1 - i) * LIVE_CHART_STEP_MS,
+    price: formatPrice(price * scale),
+  }));
+  let lastUnscaled = unscaled[unscaled.length - 1];
+
+  return {
+    getPoints(): IPricePoint[] {
+      return points;
+    },
+    advance(): IPricePoint {
+      lastUnscaled =
+        lastUnscaled * (1 + (randomPrice() - 0.48) * LIVE_CHART_VOLATILITY);
+
+      const price = formatPrice(lastUnscaled * scale);
+
+      const lastTimestamp = points[points.length - 1].timestamp;
+      const point: IPricePoint = {
+        timestamp: lastTimestamp + LIVE_CHART_STEP_MS,
+        price,
+      };
+      points = [...points.slice(1), point];
+
+      return point;
+    },
+  };
+}
 
 export function buildFiveSecondPriceHistory(
   key: string,
   currentPrice: number,
 ): IPricePoint[] {
-  const randomPrice = generateRandomPrice(`${key}-5s`);
-  const history: number[] = [1];
-
-  for (let i = 1; i < FIVE_SECOND_POINT_COUNT; i++) {
-    history.push(
-      history[i - 1] * (1 + (randomPrice() - 0.48) * FIVE_SECOND_VOLATILITY),
-    );
-  }
-
-  const scale = currentPrice / history[history.length - 1];
-  const now = Date.now();
-
-  return history.map((price, i) => ({
-    timestamp: now - (FIVE_SECOND_POINT_COUNT - 1 - i) * FIVE_SECOND_STEP_MS,
-    price: formatPrice(price * scale),
-  }));
+  return createLiveFiveSecondSeries(key, currentPrice).getPoints();
 }

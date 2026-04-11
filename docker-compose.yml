@@ -43,8 +43,8 @@ services:
     working_dir: /usr/src/app
     environment:
       CI: 'true'
-      # In-container SSR/loaders must use the Compose service name, not localhost.
       TICKER_API_URL: 'http://crypto-backend:4444'
+      VITE_TICKER_WS_URL: 'ws://localhost:4444/ws/tickers'
     volumes:
       - .:/usr/src/app
       - frontend_node_modules:/usr/src/app/node_modules

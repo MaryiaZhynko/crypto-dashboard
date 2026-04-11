@@ -36,4 +36,18 @@ export class TickerServiceController {
   ): ITickerPriceHistory {
     return this.tickerServiceService.getTickerPriceHistory(payload.symbol);
   }
+
+  @MessagePattern({ cmd: 'peekLiveTickerForStream' })
+  peekLiveTickerForStream(
+    @Payload() payload: { symbol: string },
+  ): ITickerAsset {
+    return this.tickerServiceService.peekLiveTickerForStream(payload.symbol);
+  }
+
+  @MessagePattern({ cmd: 'nextLiveTickerForStream' })
+  nextLiveTickerForStream(
+    @Payload() payload: { symbol: string },
+  ): ITickerAsset {
+    return this.tickerServiceService.nextLiveTickerForStream(payload.symbol);
+  }
 }

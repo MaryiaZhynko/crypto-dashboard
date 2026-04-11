@@ -56,4 +56,22 @@ export class BackendService implements OnModuleDestroy {
       ),
     );
   }
+
+  async peekLiveTickerForStream(symbol: string): Promise<ITickerAsset> {
+    return firstValueFrom(
+      this.tickerService.send<ITickerAsset>(
+        { cmd: 'peekLiveTickerForStream' },
+        { symbol },
+      ),
+    );
+  }
+
+  async nextLiveTickerForStream(symbol: string): Promise<ITickerAsset> {
+    return firstValueFrom(
+      this.tickerService.send<ITickerAsset>(
+        { cmd: 'nextLiveTickerForStream' },
+        { symbol },
+      ),
+    );
+  }
 }
