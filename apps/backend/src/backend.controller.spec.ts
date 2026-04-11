@@ -22,9 +22,15 @@ describe('BackendController', () => {
   const mockGetAvailableTickers = jest
     .fn()
     .mockResolvedValue({ items: [mockedTicker], totalPages: 1 });
+  const mockGetTicker = jest.fn().mockResolvedValue(mockedTicker);
+  const mockGetTickerPriceHistory = jest
+    .fn()
+    .mockResolvedValue(mockedTicker.history);
 
   beforeEach(async () => {
     mockGetAvailableTickers.mockClear();
+    mockGetTicker.mockClear();
+    mockGetTickerPriceHistory.mockClear();
     const app: TestingModule = await Test.createTestingModule({
       controllers: [BackendController],
       providers: [
@@ -32,6 +38,8 @@ describe('BackendController', () => {
           provide: BackendService,
           useValue: {
             getAvailableTickers: mockGetAvailableTickers,
+            getTicker: mockGetTicker,
+            getTickerPriceHistory: mockGetTickerPriceHistory,
           },
         },
       ],
@@ -40,7 +48,7 @@ describe('BackendController', () => {
     backendController = app.get<BackendController>(BackendController);
   });
 
-  it('getAvailableTickers delegates to BackendService with limit, offset, and search', async () => {
+  it('should delegate to BackendService with limit, offset, and search', async () => {
     const result = await backendController.getAvailableTickers(12, 0, 'btc');
 
     expect(mockGetAvailableTickers).toHaveBeenCalledWith(12, 0, 'btc');
@@ -48,5 +56,25 @@ describe('BackendController', () => {
     expect(result.totalPages).toBe(1);
     expect(result.items[0].symbol).toBe('BTC');
     expect(result.items[0].history[1].price).toBe(72_000);
+  });
+
+  it('getAvailableTickers should pass undefined search when omitted', async () => {
+    await backendController.getAvailableTickers(12, 0, undefined);
+
+    expect(mockGetAvailableTickers).toHaveBeenCalledWith(12, 0, undefined);
+  });
+
+  it('getTicker should delegate to BackendService with the route symbol', async () => {
+    const result = await backendController.getTicker('eth');
+
+    expect(mockGetTicker).toHaveBeenCalledWith('eth');
+    expect(result).toEqual(mockedTicker);
+  });
+
+  it('getTickerPriceHistory should delegate to BackendService with the route symbol', async () => {
+    const result = await backendController.getTickerPriceHistory('BTC');
+
+    expect(mockGetTickerPriceHistory).toHaveBeenCalledWith('BTC');
+    expect(result).toEqual(mockedTicker.history);
   });
 });
