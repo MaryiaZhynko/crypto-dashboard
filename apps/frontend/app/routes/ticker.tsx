@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import type { LoaderFunctionArgs } from 'react-router';
 import { Token } from '~/components/token';
 import { fetchTicker, fetchTickerPriceHistory } from '~/fetchers/tickers';
 import type { PricePoint, Ticker } from '~/schemas/tickers';
@@ -46,7 +45,7 @@ export default function TickerPage({ params }: Route.ComponentProps) {
   });
 
   const ticker = tickerQuery.data;
-  const priceHistory = historyQuery.data;
+  const priceHistory = historyQuery.data ?? [];
 
   if (!ticker) {
     return null;

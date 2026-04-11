@@ -18,12 +18,14 @@ export function getTickerApiBaseUrl(): string {
 export function getTickerWebSocketUrl(): string {
   const raw: unknown = import.meta.env.VITE_TICKER_WS_URL;
   const configured =
-    typeof raw === 'string' && raw.length > 0 ? raw.trim() : undefined;
+    typeof raw === 'string' && raw.length > 0 ? raw.trim() : '';
+
   if (configured) return configured;
 
   if (import.meta.env.DEV && typeof window !== 'undefined') {
     const { protocol, host } = window.location;
     const wsProtocol = protocol === 'https:' ? 'wss:' : 'ws:';
+
     return `${wsProtocol}//${host}/ws/tickers`;
   }
 

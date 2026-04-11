@@ -1,51 +1,40 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  useActionState,
-  type ChangeEvent,
-} from 'react';
-import type { Ticker } from '~/schemas/tickers';
+import { useState, useEffect, useRef, useMemo, type ChangeEvent } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { fetchTickers } from '~/fetchers/tickers';
 
 const SEARCH_DEBOUNCE_MS = 500;
-
-type SearchTickersResult = {
-  search: string;
-  items: Ticker[];
-};
-
-async function postSearch(
-  _prev: SearchTickersResult | null,
-  formData: FormData,
-): Promise<SearchTickersResult> {
-  const res = await fetch('/actions/search-tickers', {
-    method: 'POST',
-    body: formData,
-    headers: { Accept: 'application/json' },
-  });
-
-  if (!res.ok) {
-    return { search: '', items: [] };
-  }
-
-  return (await res.json()) as SearchTickersResult;
-}
+const MAX_SEARCH_LEN = 64;
+const SEARCH_LIMIT = 20;
 
 export function useTokenSearch() {
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
-  const [state, formAction, isPending] = useActionState(postSearch, null);
-
   const [isOpen, setIsOpen] = useState(false);
 
   const rootRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
+
+  const searchForQuery = useMemo(() => {
+    const query = debounced.trim();
+
+    if (query.length === 0) return '';
+
+    return query.length > MAX_SEARCH_LEN
+      ? query.slice(0, MAX_SEARCH_LEN)
+      : query;
+  }, [debounced]);
+
+  const { data, isPending, isFetching } = useQuery({
+    queryKey: ['tickers', 'search', searchForQuery],
+    queryFn: () =>
+      fetchTickers({ limit: SEARCH_LIMIT, offset: 0, search: searchForQuery }),
+    enabled: searchForQuery.length > 0,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
 
   const isDropdownOpen = isOpen && debounced.length > 0;
-  const isStale = state != null && state.search !== debounced;
-  const isSearching = debounced.length > 0 && (isPending || isStale);
-  const tickers =
-    state != null && state.search === debounced ? state.items : [];
+  const isSearching = searchForQuery.length > 0 && (isPending || isFetching);
+  const tickers = data?.items ?? [];
 
   const handleFocusChange = (isOpen: boolean) => {
     setIsOpen(isOpen);
@@ -63,22 +52,15 @@ export function useTokenSearch() {
   };
 
   useEffect(() => {
-    const t = setTimeout(() => setDebounced(query.trim()), SEARCH_DEBOUNCE_MS);
+    const timer = setTimeout(
+      () => setDebounced(query.trim()),
+      SEARCH_DEBOUNCE_MS,
+    );
 
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [query]);
 
-  useEffect(() => {
-    if (debounced.length === 0) {
-      return;
-    }
-
-    formRef.current?.requestSubmit();
-  }, [debounced]);
-
   return {
-    formAction,
-    formRef,
     debounced,
     rootRef,
     query,

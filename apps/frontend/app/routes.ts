@@ -10,6 +10,4 @@ export default [
     index('routes/home.tsx'),
     route('/:symbol', 'routes/ticker.tsx'),
   ]),
-
-  route('actions/search-tickers', 'routes/actions/search-tickers.tsx'),
 ] satisfies RouteConfig;

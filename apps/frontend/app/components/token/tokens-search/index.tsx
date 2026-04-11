@@ -4,9 +4,6 @@ import { useTokenSearch } from './useTokenSearch';
 
 export function TokenSearch() {
   const {
-    formAction,
-    formRef,
-    debounced,
     rootRef,
     query,
     isDropdownOpen,
@@ -19,10 +16,6 @@ export function TokenSearch() {
 
   return (
     <div>
-      <form ref={formRef} action={formAction} className="hidden" aria-hidden>
-        <input type="hidden" name="search" value={debounced} readOnly />
-      </form>
-
       <div ref={rootRef} className="relative">
         <div className="flex items-center gap-2 px-6 border-border border bg-card py-4">
           <SearchIcon className="w-4 h-4 shrink-0 text-muted-foreground" />
