@@ -3,3 +3,7 @@ export enum TextAlign {
   CENTER = 'center',
   RIGHT = 'right',
 }
+
+export interface ILivePrice {
+  [key: string]: number;
+}

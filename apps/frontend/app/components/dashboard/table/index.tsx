@@ -1,4 +1,4 @@
-import { TextAlign } from '~/types';
+import { TextAlign, type ILivePrice } from '~/types';
 import { Cell } from './cell';
 import { HeadCell } from './head-cell';
 import type { Ticker } from '~/schemas/tickers';
@@ -7,7 +7,6 @@ import { PriceSparkline } from './price-history-graph';
 import { formatCompactNumber, formatCurrency } from '~/lib/utils';
 
 const STICKY_FIRST_HEAD = 'sticky left-0 z-20 bg-sidebar md:bg-card';
-
 const STICKY_FIRST_BODY = 'sticky left-0 z-10 bg-sidebar md:bg-card';
 
 const HEAD_CELL_PROPS: {
@@ -25,16 +24,17 @@ const HEAD_CELL_PROPS: {
   { name: 'Volume' },
   { name: 'Supply' },
   {
-    name: 'History',
+    name: 'History (50 days)',
     textAlign: TextAlign.RIGHT,
   },
 ];
 
 interface IProps {
   tickers: Ticker[];
+  livePrices: ILivePrice;
 }
 
-export function Table({ tickers }: IProps) {
+export function Table({ tickers, livePrices }: IProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-max border-collapse border-border">
@@ -68,7 +68,9 @@ export function Table({ tickers }: IProps) {
                   </NavLink>
                 </div>
               </Cell>
-              <Cell>{formatCurrency(ticker.price)}</Cell>
+              <Cell>
+                {formatCurrency(livePrices[ticker.symbol] ?? ticker.price)}
+              </Cell>
               <Cell>{formatCurrency(ticker.marketCap)}</Cell>
               <Cell>{formatCurrency(ticker.volume)}</Cell>
               <Cell>{formatCompactNumber(ticker.supply)}</Cell>

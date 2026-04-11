@@ -1,5 +1,6 @@
 import type { PricePoint, Ticker } from '~/schemas/tickers';
 import { Card, CardContent } from '~/components/ui/card';
+import { useTickerWs } from '~/lib/useTickerWs';
 import { TokenChart } from './token-chart';
 import {
   Breadcrumb,
@@ -18,6 +19,9 @@ interface IProps {
 }
 
 export function Token({ ticker, priceHistory }: IProps) {
+  const { ticker: liveTicker } = useTickerWs({ symbol: ticker.symbol });
+  const chartData = liveTicker?.history ?? priceHistory;
+
   return (
     <section className="flex flex-col gap-4">
       <Breadcrumb>
@@ -34,12 +38,12 @@ export function Token({ ticker, priceHistory }: IProps) {
       <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4">
         <div className="flex flex-col gap-4">
           <TokenSearch />
-          <TokenCard ticker={ticker} />
+          <TokenCard ticker={liveTicker ?? ticker} />
         </div>
 
         <Card className="lg:col-span-2">
           <CardContent>
-            <TokenChart data={priceHistory} />
+            <TokenChart data={chartData} />
           </CardContent>
         </Card>
       </div>
