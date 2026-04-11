@@ -20,8 +20,9 @@ export class BackendController {
   async getAvailableTickers(
     @Query('limit', new DefaultValuePipe(12), ParseIntPipe) limit: number,
     @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
+    @Query('search') search?: string,
   ): Promise<ITickersListResponse> {
-    return this.backendService.getAvailableTickers(limit, offset);
+    return this.backendService.getAvailableTickers(limit, offset, search);
   }
 
   @Get(':symbol')

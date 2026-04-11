@@ -27,11 +27,12 @@ export class BackendService implements OnModuleDestroy {
   async getAvailableTickers(
     limit: number,
     offset: number,
+    search?: string,
   ): Promise<ITickersListResponse> {
     return firstValueFrom(
       this.tickerService.send<ITickersListResponse>(
         { cmd: 'getAvailableTickers' },
-        { limit, offset },
+        { limit, offset, search },
       ),
     );
   }

@@ -12,11 +12,16 @@ export class TickerServiceController {
 
   @MessagePattern({ cmd: 'getAvailableTickers' })
   getAvailableTickers(
-    @Payload() payload: { limit?: number; offset?: number } = {},
+    @Payload()
+    payload: { limit?: number; offset?: number; search?: string } = {},
   ): ITickersListResponse {
     const limit = payload.limit ?? 12;
     const offset = payload.offset ?? 0;
-    return this.tickerServiceService.getAvailableTickers(limit, offset);
+    return this.tickerServiceService.getAvailableTickers(
+      limit,
+      offset,
+      payload.search,
+    );
   }
 
   @MessagePattern({ cmd: 'getTicker' })

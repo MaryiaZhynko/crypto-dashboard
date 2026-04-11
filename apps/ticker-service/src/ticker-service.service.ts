@@ -26,13 +26,27 @@ export class TickerServiceService {
     });
   }
 
-  getAvailableTickers(limit: number, offset: number): ITickersListResponse {
-    const all = this.getAllTickers();
-    const total = all.length;
+  getAvailableTickers(
+    limit: number,
+    offset: number,
+    search?: string,
+  ): ITickersListResponse {
+    let tickers = this.getAllTickers();
+
+    const searchQuery = search?.trim().toLowerCase();
+    if (searchQuery) {
+      tickers = tickers.filter(
+        (t) =>
+          t.symbol.toLowerCase().includes(searchQuery) ||
+          t.name.toLowerCase().includes(searchQuery),
+      );
+    }
+
+    const total = tickers.length;
     const pageSize = limit > 0 ? limit : 12;
 
     return {
-      items: all.slice(offset, offset + pageSize),
+      items: tickers.slice(offset, offset + pageSize),
       totalPages: Math.max(1, Math.ceil(total / pageSize)),
     };
   }

@@ -45,5 +45,23 @@ describe('TickerServiceController', () => {
       expect(items).toHaveLength(12);
       expect(totalPages).toBe(9);
     });
+
+    it('filters by search on symbol or name', () => {
+      const { items, totalPages } = tickerServiceController.getAvailableTickers(
+        {
+          limit: 100,
+          offset: 0,
+          search: 'bit',
+        },
+      );
+
+      expect(
+        items.every(
+          (ticker) => /bit/i.test(ticker.symbol) || /bit/i.test(ticker.name),
+        ),
+      ).toBe(true);
+      expect(items.length).toBeGreaterThan(0);
+      expect(totalPages).toBe(1);
+    });
   });
 });

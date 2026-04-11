@@ -40,10 +40,10 @@ describe('BackendController', () => {
     backendController = app.get<BackendController>(BackendController);
   });
 
-  it('getAvailableTickers delegates to BackendService with limit and offset', async () => {
-    const result = await backendController.getAvailableTickers(12, 0);
+  it('getAvailableTickers delegates to BackendService with limit, offset, and search', async () => {
+    const result = await backendController.getAvailableTickers(12, 0, 'btc');
 
-    expect(mockGetAvailableTickers).toHaveBeenCalledWith(12, 0);
+    expect(mockGetAvailableTickers).toHaveBeenCalledWith(12, 0, 'btc');
     expect(result.items).toHaveLength(1);
     expect(result.totalPages).toBe(1);
     expect(result.items[0].symbol).toBe('BTC');
