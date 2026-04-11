@@ -8,7 +8,6 @@ import {
 import type { Ticker } from '~/schemas/tickers';
 
 const SEARCH_DEBOUNCE_MS = 500;
-const SEARCH_ACTION = '/actions/search-tickers';
 
 type SearchTickersResult = {
   search: string;
@@ -19,14 +18,16 @@ async function postSearch(
   _prev: SearchTickersResult | null,
   formData: FormData,
 ): Promise<SearchTickersResult> {
-  const res = await fetch(SEARCH_ACTION, {
+  const res = await fetch('/actions/search-tickers', {
     method: 'POST',
     body: formData,
     headers: { Accept: 'application/json' },
   });
+
   if (!res.ok) {
     return { search: '', items: [] };
   }
+
   return (await res.json()) as SearchTickersResult;
 }
 

@@ -1,8 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import coins from './data/coingecko-top100-snapshot.json';
-import { buildPriceHistory } from './price-history';
+import {
+  buildFiveSecondPriceHistory,
+  buildPriceHistory,
+} from './price-history';
 import type {
   ITickerAsset,
+  ITickerPriceHistory,
   ITickersListResponse,
 } from '@shared/common/types/ticker';
 
@@ -61,5 +65,13 @@ export class TickerServiceService {
     }
 
     return ticker;
+  }
+
+  getTickerPriceHistory(symbol: string): ITickerPriceHistory {
+    const ticker = this.getTicker(symbol);
+    return buildFiveSecondPriceHistory(
+      `${ticker.symbol}-${ticker.name}`,
+      ticker.price,
+    );
   }
 }

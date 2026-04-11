@@ -1,7 +1,6 @@
 import type { LoaderFunctionArgs } from 'react-router';
 import { Token } from '~/components/token';
-import { fetchTicker } from '~/fetchers/tickers';
-import type { Ticker } from '~/schemas/tickers';
+import { fetchTicker, fetchTickerPriceHistory } from '~/fetchers/tickers';
 import type { Route } from './+types/ticker';
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -11,13 +10,19 @@ export async function loader({ params }: LoaderFunctionArgs) {
     throw new Response(null, { status: 404 });
   }
 
-  const ticker: Ticker | null = await fetchTicker(symbol);
+  const [ticker, priceHistory] = await Promise.all([
+    fetchTicker(symbol),
+    fetchTickerPriceHistory(symbol),
+  ]);
 
   if (!ticker) {
     throw new Response(null, { status: 404 });
   }
 
-  return { ticker };
+  return {
+    ticker,
+    priceHistory: priceHistory ?? ticker.history,
+  };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -36,5 +41,7 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function TickerPage({ loaderData }: Route.ComponentProps) {
-  return <Token ticker={loaderData.ticker} />;
+  return (
+    <Token ticker={loaderData.ticker} priceHistory={loaderData.priceHistory} />
+  );
 }

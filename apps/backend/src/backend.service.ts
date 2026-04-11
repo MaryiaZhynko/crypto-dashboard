@@ -7,6 +7,7 @@ import {
 import { firstValueFrom } from 'rxjs';
 import type {
   ITickerAsset,
+  ITickerPriceHistory,
   ITickersListResponse,
 } from '@shared/common/types/ticker';
 
@@ -44,6 +45,15 @@ export class BackendService implements OnModuleDestroy {
   async getTicker(symbol: string): Promise<ITickerAsset> {
     return firstValueFrom(
       this.tickerService.send<ITickerAsset>({ cmd: 'getTicker' }, { symbol }),
+    );
+  }
+
+  async getTickerPriceHistory(symbol: string): Promise<ITickerPriceHistory> {
+    return firstValueFrom(
+      this.tickerService.send<ITickerPriceHistory>(
+        { cmd: 'getTickerPriceHistory' },
+        { symbol },
+      ),
     );
   }
 }

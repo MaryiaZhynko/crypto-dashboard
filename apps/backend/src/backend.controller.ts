@@ -9,6 +9,7 @@ import {
 import { BackendService } from './backend.service';
 import type {
   ITickerAsset,
+  ITickerPriceHistory,
   ITickersListResponse,
 } from '@shared/common/types/ticker';
 
@@ -23,6 +24,13 @@ export class BackendController {
     @Query('search') search?: string,
   ): Promise<ITickersListResponse> {
     return this.backendService.getAvailableTickers(limit, offset, search);
+  }
+
+  @Get(':symbol/history')
+  async getTickerPriceHistory(
+    @Param('symbol') symbol: string,
+  ): Promise<ITickerPriceHistory> {
+    return this.backendService.getTickerPriceHistory(symbol);
   }
 
   @Get(':symbol')

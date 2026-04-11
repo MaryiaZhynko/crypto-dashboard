@@ -50,3 +50,29 @@ export function buildPriceHistory(
     price: formatPrice(r * scale),
   }));
 }
+
+const FIVE_SECOND_POINT_COUNT = 50;
+const FIVE_SECOND_STEP_MS = 5000;
+const FIVE_SECOND_VOLATILITY = 0.12;
+
+export function buildFiveSecondPriceHistory(
+  key: string,
+  currentPrice: number,
+): IPricePoint[] {
+  const randomPrice = generateRandomPrice(`${key}-5s`);
+  const history: number[] = [1];
+
+  for (let i = 1; i < FIVE_SECOND_POINT_COUNT; i++) {
+    history.push(
+      history[i - 1] * (1 + (randomPrice() - 0.48) * FIVE_SECOND_VOLATILITY),
+    );
+  }
+
+  const scale = currentPrice / history[history.length - 1];
+  const now = Date.now();
+
+  return history.map((price, i) => ({
+    timestamp: now - (FIVE_SECOND_POINT_COUNT - 1 - i) * FIVE_SECOND_STEP_MS,
+    price: formatPrice(price * scale),
+  }));
+}

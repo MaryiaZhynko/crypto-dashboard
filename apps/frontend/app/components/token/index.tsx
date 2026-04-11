@@ -1,4 +1,4 @@
-import type { Ticker } from '~/schemas/tickers';
+import type { PricePoint, Ticker } from '~/schemas/tickers';
 import { Card, CardContent } from '~/components/ui/card';
 import { TokenChart } from './token-chart';
 import {
@@ -14,9 +14,10 @@ import { TokenSearch } from './tokens-search';
 
 interface IProps {
   ticker: Ticker;
+  priceHistory: PricePoint[];
 }
 
-export function Token({ ticker }: IProps) {
+export function Token({ ticker, priceHistory }: IProps) {
   return (
     <section className="flex flex-col gap-4">
       <Breadcrumb>
@@ -38,7 +39,7 @@ export function Token({ ticker }: IProps) {
 
         <Card className="lg:col-span-2">
           <CardContent>
-            <TokenChart data={ticker.history} />
+            <TokenChart data={priceHistory} />
           </CardContent>
         </Card>
       </div>

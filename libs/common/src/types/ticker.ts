@@ -18,3 +18,5 @@ export interface ITickersListResponse {
   items: ITickerAsset[];
   totalPages: number;
 }
+
+export type ITickerPriceHistory = IPricePoint[];

@@ -3,6 +3,7 @@ import { TickerServiceService } from './ticker-service.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import type {
   ITickerAsset,
+  ITickerPriceHistory,
   ITickersListResponse,
 } from '@shared/common/types/ticker';
 
@@ -27,5 +28,12 @@ export class TickerServiceController {
   @MessagePattern({ cmd: 'getTicker' })
   getTicker(@Payload() payload: { symbol: string }): ITickerAsset {
     return this.tickerServiceService.getTicker(payload.symbol);
+  }
+
+  @MessagePattern({ cmd: 'getTickerPriceHistory' })
+  getTickerPriceHistory(
+    @Payload() payload: { symbol: string },
+  ): ITickerPriceHistory {
+    return this.tickerServiceService.getTickerPriceHistory(payload.symbol);
   }
 }

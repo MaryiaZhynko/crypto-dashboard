@@ -1,13 +1,19 @@
 import { Object, Number, String, Array, type Static } from 'runtypes';
 
-const PricePoint = Object({
+const PricePointObject = Object({
   timestamp: Number,
   price: Number,
 });
 
-export type PricePoint = Static<typeof PricePoint>;
+export type PricePoint = Static<typeof PricePointObject>;
 
-export const Ticker = Object({
+export const TickerPriceHistoryResponse = Array(PricePointObject);
+
+export type TickerPriceHistoryPayload = Static<
+  typeof TickerPriceHistoryResponse
+>;
+
+export const TickerObject = Object({
   symbol: String,
   name: String,
   logo: String,
@@ -15,18 +21,18 @@ export const Ticker = Object({
   volume: Number,
   supply: Number,
   price: Number,
-  history: Array(PricePoint),
+  history: Array(PricePointObject),
 });
 
-export type Ticker = Static<typeof Ticker>;
+export type Ticker = Static<typeof TickerObject>;
 
 export const TickersApiResponse = Object({
-  items: Array(Ticker),
+  items: Array(TickerObject),
   totalPages: Number,
 });
 
 export type TickersApiPayload = Static<typeof TickersApiResponse>;
 
-export const TickerApiResponse = Ticker;
+export const TickerApiResponse = TickerObject;
 
 export type TickerApiPayload = Static<typeof TickerApiResponse>;
