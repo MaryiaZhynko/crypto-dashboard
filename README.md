@@ -74,7 +74,7 @@ docker compose down
 
 ## Run locally (without Docker)
 
-Requires a running ticker microservice and backend; set `TICKER_API_URL` and `VITE_TICKER_WS_URL` for the frontend to point at backend.
+Requires a running ticker microservice and backend; set `VITE_TICKER_API_URL` and `VITE_TICKER_WS_URL` for the frontend to point at backend.
 
 From the repo root, you can run all three processes:
 

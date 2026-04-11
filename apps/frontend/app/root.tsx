@@ -6,7 +6,8 @@ import {
   Scripts,
   ScrollRestoration,
 } from 'react-router';
-
+import { TickerWebSocketProvider } from '~/contexts/ticker-websocket-context';
+import { QueryProvider } from '~/lib/query-provider';
 import type { Route } from './+types/root';
 import './app.css';
 
@@ -31,7 +32,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <QueryProvider>
+      <TickerWebSocketProvider>
+        <Outlet />
+      </TickerWebSocketProvider>
+    </QueryProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
@@ -43,7 +50,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     message = error.status === 404 ? '404' : 'Error';
     details =
       error.status === 404
-        ? 'The requested page could not be found.'
+        ? 'Page could not be found.'
         : error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;

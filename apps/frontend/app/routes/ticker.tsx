@@ -1,34 +1,18 @@
+import { useQuery } from '@tanstack/react-query';
 import type { LoaderFunctionArgs } from 'react-router';
 import { Token } from '~/components/token';
 import { fetchTicker, fetchTickerPriceHistory } from '~/fetchers/tickers';
+import type { PricePoint, Ticker } from '~/schemas/tickers';
 import type { Route } from './+types/ticker';
 
-export async function loader({ params }: LoaderFunctionArgs) {
-  const symbol = params.symbol;
+export type TickerLoaderData = {
+  symbol: string;
+  ticker: Ticker;
+  priceHistory: PricePoint[];
+};
 
-  if (!symbol) {
-    throw new Response(null, { status: 404 });
-  }
-
-  const [ticker, priceHistory] = await Promise.all([
-    fetchTicker(symbol),
-    fetchTickerPriceHistory(symbol),
-  ]);
-
-  if (!ticker) {
-    throw new Response(null, { status: 404 });
-  }
-
-  return {
-    ticker,
-    priceHistory: priceHistory ?? ticker.history,
-  };
-}
-
-export function meta({ data }: Route.MetaArgs) {
-  const title = data?.ticker
-    ? `${data.ticker.name} - ${data.ticker.symbol} | Crypto Dashboard`
-    : 'Crypto Dashboard';
+export function meta() {
+  const title = 'Crypto Dashboard';
 
   return [
     { title },
@@ -40,8 +24,33 @@ export function meta({ data }: Route.MetaArgs) {
   ];
 }
 
-export default function TickerPage({ loaderData }: Route.ComponentProps) {
-  return (
-    <Token ticker={loaderData.ticker} priceHistory={loaderData.priceHistory} />
-  );
+export default function TickerPage({ params }: Route.ComponentProps) {
+  const { symbol } = params;
+
+  const tickerQuery = useQuery({
+    queryKey: ['ticker', symbol],
+    queryFn: (): Promise<Ticker | null> => fetchTicker(symbol),
+    staleTime: 30_000,
+  });
+
+  const historyQuery = useQuery({
+    queryKey: ['ticker-history', symbol],
+    queryFn: async (): Promise<PricePoint[]> => {
+      const history = await fetchTickerPriceHistory(symbol);
+
+      if (history) return history;
+
+      const ticker = await fetchTicker(symbol);
+      return ticker?.history ?? [];
+    },
+  });
+
+  const ticker = tickerQuery.data;
+  const priceHistory = historyQuery.data;
+
+  if (!ticker) {
+    return null;
+  }
+
+  return <Token ticker={ticker} priceHistory={priceHistory} />;
 }

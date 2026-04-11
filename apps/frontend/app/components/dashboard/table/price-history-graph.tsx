@@ -20,7 +20,7 @@ export function PriceSparkline({ history, className }: IProps) {
 
   return (
     <div className={cn('h-8 w-full min-w-40 shrink-0', className)}>
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer height={32}>
         <LineChart
           data={data}
           margin={{ top: 2, right: 2, bottom: 2, left: 2 }}

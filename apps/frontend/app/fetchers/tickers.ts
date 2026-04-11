@@ -7,6 +7,8 @@ import {
 } from '~/schemas/tickers';
 import { getTickerApiBaseUrl } from '~/lib/ticker-api';
 
+export const DASHBOARD_TICKERS_PAGE_SIZE = 12;
+
 const emptyTickersResponse = (): TickersApiPayload => ({
   items: [],
   totalPages: 1,

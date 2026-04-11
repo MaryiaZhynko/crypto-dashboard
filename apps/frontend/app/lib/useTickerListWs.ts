@@ -1,8 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 
-import { TickerObject } from '~/schemas/tickers';
-import { getTickerWebSocketUrl } from '~/lib/ticker-api';
-import { parseTickerWsEnvelope } from '~/lib/ticker-ws-envelope';
+import { useTickerWebSocket } from '~/contexts/ticker-websocket-context';
 import type { Ticker } from '~/schemas/tickers';
 import type { ILivePrice } from '~/types';
 
@@ -16,150 +14,51 @@ export const useTickerListWs = (
   tickers: Ticker[],
   enabled = true,
 ): ITickerListWsResult => {
-  const [livePricesBySymbol, setLivePricesBySymbol] = useState<ILivePrice>({});
-  const [connected, setConnected] = useState(false);
-  const [lastError, setLastError] = useState<string | null>(null);
-  const wsRef = useRef<WebSocket | null>(null);
-  const subscribedRef = useRef<Set<string>>(new Set());
+  const { isConnected, lastError, liveBySymbol, subscribe, unsubscribe } =
+    useTickerWebSocket();
 
-  const symbolsKey = useMemo(
+  const watchedSymbols = useMemo(
     () =>
-      [...new Set(tickers.map((t) => t.symbol.trim()).filter(Boolean))]
-        .sort()
-        .join('\0'),
+      [
+        ...new Set(
+          tickers.map((ticker) => ticker.symbol.trim()).filter(Boolean),
+        ),
+      ].sort(),
     [tickers],
   );
 
   const livePrices = useMemo((): ILivePrice => {
-    if (!symbolsKey.length) {
+    if (watchedSymbols.length === 0) {
       return {};
     }
 
     const next: ILivePrice = {};
-    for (const s of symbolsKey.split('\0')) {
-      const price = livePricesBySymbol[s];
-      if (price !== undefined) {
-        next[s] = price;
+
+    for (const symbol of watchedSymbols) {
+      const ticker = liveBySymbol[symbol];
+      if (ticker !== undefined) {
+        next[symbol] = ticker.price;
       }
     }
+
     return next;
-  }, [livePricesBySymbol, symbolsKey]);
-
-  const subscribe = useCallback((symbol: string) => {
-    const ws = wsRef.current;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-
-    ws.send(
-      JSON.stringify({
-        event: 'subscribe',
-        data: { symbol },
-      }),
-    );
-  }, []);
-
-  const unsubscribe = useCallback((symbol: string) => {
-    const ws = wsRef.current;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-
-    ws.send(
-      JSON.stringify({
-        event: 'unsubscribe',
-        data: { symbol },
-      }),
-    );
-  }, []);
+  }, [liveBySymbol, watchedSymbols]);
 
   useEffect(() => {
-    if (!enabled || typeof window === 'undefined') return;
+    if (!enabled || !isConnected || watchedSymbols.length === 0) return;
 
-    const url = getTickerWebSocketUrl();
-    const ws = new WebSocket(url);
-    wsRef.current = ws;
-
-    ws.onopen = () => {
-      setConnected(true);
-      setLastError(null);
-    };
-
-    ws.onclose = () => {
-      setConnected(false);
-      wsRef.current = null;
-      subscribedRef.current = new Set();
-    };
-
-    ws.onerror = () => {
-      setLastError('WebSocket connection error');
-    };
-
-    ws.onmessage = (ev: MessageEvent<string>) => {
-      const msg = parseTickerWsEnvelope(ev.data);
-
-      if (!msg) return;
-
-      if (msg.event === 'ticker') {
-        try {
-          const checked = TickerObject.check(msg.data);
-
-          setLivePricesBySymbol((prev) => ({
-            ...prev,
-            [checked.symbol]: checked.price,
-          }));
-          setLastError(null);
-        } catch {
-          console.error('Error parsing WebSocket message:', msg.data);
-        }
-
-        return;
-      }
-
-      if (msg.event === 'error') {
-        const data = msg.data;
-
-        if (
-          data &&
-          typeof data === 'object' &&
-          'message' in data &&
-          typeof data.message === 'string'
-        ) {
-          setLastError(data.message);
-          return;
-        }
-
-        setLastError('Unknown error');
-      }
-    };
+    const ids = watchedSymbols.map((symbol) => subscribe({ symbol }));
 
     return () => {
-      wsRef.current = null;
-      subscribedRef.current = new Set();
-      ws.close();
-    };
-  }, [enabled]);
-
-  useEffect(() => {
-    if (!enabled || !connected) return;
-
-    const symbols =
-      symbolsKey.length > 0 ? symbolsKey.split('\0') : ([] as string[]);
-
-    for (const s of symbols) {
-      subscribe(s);
-    }
-
-    subscribedRef.current = new Set(symbols);
-
-    return () => {
-      for (const s of subscribedRef.current) {
-        unsubscribe(s);
+      for (const id of ids) {
+        unsubscribe(id);
       }
-
-      subscribedRef.current = new Set();
     };
-  }, [connected, enabled, subscribe, unsubscribe, symbolsKey]);
+  }, [enabled, isConnected, subscribe, unsubscribe, watchedSymbols]);
 
   return {
     livePrices,
-    connected,
+    connected: isConnected,
     lastError,
   };
 };
