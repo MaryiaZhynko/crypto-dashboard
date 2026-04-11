@@ -3,25 +3,33 @@ import {
   TickerApiResponse,
   type TickersApiPayload,
 } from '~/schemas/tickers';
+import { getTickerApiBaseUrl } from '~/lib/ticker-api';
 
 const emptyTickersResponse = (): TickersApiPayload => ({
   items: [],
   totalPages: 1,
 });
 
-export const fetchTickers = async (params?: {
+interface IParams {
   limit?: number;
   offset?: number;
-}) => {
+  search?: string;
+}
+
+export const fetchTickers = async (params?: IParams) => {
   try {
-    const search = new URLSearchParams();
+    const searchParams = new URLSearchParams();
 
-    if (params?.limit != null) search.set('limit', String(params.limit));
-    if (params?.offset != null) search.set('offset', String(params.offset));
+    if (params?.limit) searchParams.set('limit', String(params.limit));
+    if (params?.offset) searchParams.set('offset', String(params.offset));
+    if (params?.search && params.search.trim() !== '')
+      searchParams.set('search', params.search.trim());
 
-    const qs = search.toString();
+    const query = searchParams.toString();
 
-    const url = `${process.env.TICKER_API_URL}/tickers${qs ? `?${qs}` : ''}`;
+    const baseUrl = getTickerApiBaseUrl();
+    const url = `${baseUrl}/tickers${query ? `?${query}` : ''}`;
+
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -31,6 +39,7 @@ export const fetchTickers = async (params?: {
     }
 
     const data: unknown = await response.json();
+
     return TickersApiResponse.check(data);
   } catch (error) {
     console.error('Error fetching tickers:', error);
@@ -41,7 +50,8 @@ export const fetchTickers = async (params?: {
 
 export const fetchTicker = async (symbol: string) => {
   try {
-    const url = `${process.env.TICKER_API_URL}/tickers/${symbol}`;
+    const url = `${getTickerApiBaseUrl()}/tickers/${symbol}`;
+
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -51,6 +61,7 @@ export const fetchTicker = async (symbol: string) => {
     }
 
     const data: unknown = await response.json();
+
     return TickerApiResponse.check(data);
   } catch (error) {
     console.error('Error fetching ticker:', error);

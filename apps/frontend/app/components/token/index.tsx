@@ -10,7 +10,7 @@ import {
   BreadcrumbPage,
 } from '~/components/ui/breadcrumb';
 import { TokenCard } from './token-card';
-import { TokenSearch } from './token-search';
+import { TokenSearch } from './tokens-search';
 
 interface IProps {
   ticker: Ticker;
